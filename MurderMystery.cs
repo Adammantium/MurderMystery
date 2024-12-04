@@ -18,9 +18,11 @@ namespace MurderMystery
     {
         public override string NAME => "MurderMystery";
         public override string AUTHOR => "LetsJustPlay";
-        public override string VERSION => "0.4";
+        public override string VERSION => "0.5";
 
         private bool gameRunning = false;
+
+        private int matchResults = 0; // 0 = Stalemate, 1 = Citizen Victory, 2 = Murderer Victory(everyone dead), 3 = Murderer Victory(detective failure)
 
         private MurderMysteryConfig config;
 
@@ -87,9 +89,34 @@ namespace MurderMystery
             }
 
             deadCancelTokenSource.Cancel();
-            ModManager.serverInstance.netamiteServer.SendToAll(
-                new DisplayTextPacket("endGameNotify", "Stalemate\nThe Murderer failed to kill everyone and the Detective failed to find the Murderer.", Color.white, new Vector3(0,0,2), true, true, 5)
-            );
+            if (timer == 0)
+            {
+                matchResults = 0;
+            }
+            switch (matchResults)
+            {
+                case 0:
+                    ModManager.serverInstance.netamiteServer.SendToAll(
+                        new DisplayTextPacket("endGameNotify", "Stalemate\nThe Murderer failed to kill everyone and the\nDetective failed to find the Murderer.", Color.white, new Vector3(0, 0, 2), true, true, 5)
+                    );
+                    break;
+                case 1:
+                    ModManager.serverInstance.netamiteServer.SendToAll(
+                        new DisplayTextPacket("endGameNotify", $"Citizens Victory!\nThe Murderer has been stopped! The town is saved!", Color.blue, new Vector3(0, 0, 2), true, true, 5)
+                    );
+                    break;
+                case 2:
+                    ModManager.serverInstance.netamiteServer.SendToAll(
+                        new DisplayTextPacket("endGameNotify", $"Murderer Victory!\nThe Murderer has killed everyone!", Color.red, new Vector3(0, 0, 2), true, true, 5)
+                    );
+                    break;
+                case 3:
+                    ModManager.serverInstance.netamiteServer.SendToAll(
+                        new DisplayTextPacket("endGameNotify", $"Murderer Victory!\nThe Detective has slain a citizen,\nmeaning the Murderer wins! For some reason.", Color.red, new Vector3(0, 0, 2), true, true, 5)
+                    );
+                    break;
+            }
+
             Thread.Sleep(5000);
             gameRunning = false;
             if (players.Count >= config.requiredPlayerCount)
@@ -180,23 +207,18 @@ namespace MurderMystery
             config = (MurderMysteryConfig)GetConfig();
         }
 
+        public override void OnStop()
+        {
+            matchCancelTokenSource.Cancel();
+            deadCancelTokenSource.Cancel();
+        }
+
         public void OnPlayerKilled(ClientData killed, ClientData killer)
         {
             if (killed.ClientId == murderer.ClientId)
             {
+                matchResults = 1;
                 matchCancelTokenSource.Cancel();
-                deadCancelTokenSource.Cancel();
-
-                ModManager.serverInstance.netamiteServer.SendToAll(
-                    new DisplayTextPacket("endGameNotify", $"Citizens Victory!\nThe Murderer has been stopped! The town is saved!", Color.blue, new Vector3(0, 0, 2), true, true, 5)
-                );
-                Thread.Sleep(5000);
-                gameRunning = false;
-                if (players.Count >= config.requiredPlayerCount)
-                {
-                    Thread intermission = new Thread(intermissionLoop);
-                    intermission.Start();
-                }
             }
             else if (killed.ClientId == detective.ClientId)
             {
@@ -222,19 +244,8 @@ namespace MurderMystery
             }
             else if (killer.ClientId == detective.ClientId)
             {
+                matchResults = 3;
                 matchCancelTokenSource.Cancel();
-                deadCancelTokenSource.Cancel();
-
-                ModManager.serverInstance.netamiteServer.SendToAll(
-                    new DisplayTextPacket("endGameNotify", $"Murderer Victory!\nThe Detective has slain an innocent, meaning the Murderer wins! For some reason.", Color.red, new Vector3(0, 0, 2), true, true, 5)
-                );
-                Thread.Sleep(5000);
-                gameRunning = false;
-                if (players.Count >= config.requiredPlayerCount)
-                {
-                    Thread intermission = new Thread(intermissionLoop);
-                    intermission.Start();
-                }
             }
             else if (deadPlayers.Where(i => i.ClientId == killed.ClientId).FirstOrDefault() == null)
             {
@@ -244,19 +255,8 @@ namespace MurderMystery
 
             if (citizens.Count == 0 && detective == null)
             {
+                matchResults = 2;
                 matchCancelTokenSource.Cancel();
-                deadCancelTokenSource.Cancel();
-
-                ModManager.serverInstance.netamiteServer.SendToAll(
-                    new DisplayTextPacket("endGameNotify", $"Murderer Victory!\nThe Murderer has killed everyone!", Color.red, new Vector3(0, 0, 2), true, true, 5)
-                );
-                Thread.Sleep(5000);
-                gameRunning = false;
-                if (players.Count >= config.requiredPlayerCount)
-                {
-                    Thread intermission = new Thread(intermissionLoop);
-                    intermission.Start();
-                }
             }
         }
 
