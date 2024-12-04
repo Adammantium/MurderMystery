@@ -18,7 +18,7 @@ namespace MurderMystery
     {
         public override string NAME => "MurderMystery";
         public override string AUTHOR => "LetsJustPlay";
-        public override string VERSION => "0.3";
+        public override string VERSION => "0.4";
 
         private bool gameRunning = false;
 
@@ -86,11 +86,17 @@ namespace MurderMystery
                 timer--;
             }
 
+            deadCancelTokenSource.Cancel();
             ModManager.serverInstance.netamiteServer.SendToAll(
-                new DisplayTextPacket("endGameNotify", "Stalemate\nThe murderer failed to kill everyone and the detective failed to find the murderer.", Color.white, new Vector3(0,0,2), true, true, 5)
+                new DisplayTextPacket("endGameNotify", "Stalemate\nThe Murderer failed to kill everyone and the Detective failed to find the Murderer.", Color.white, new Vector3(0,0,2), true, true, 5)
             );
             Thread.Sleep(5000);
             gameRunning = false;
+            if (players.Count >= config.requiredPlayerCount)
+            {
+                Thread intermission = new Thread(intermissionLoop);
+                intermission.Start();
+            }
         }
 
         private void intermissionLoop()
@@ -178,6 +184,79 @@ namespace MurderMystery
         {
             if (killed.ClientId == murderer.ClientId)
             {
+                matchCancelTokenSource.Cancel();
+                deadCancelTokenSource.Cancel();
+
+                ModManager.serverInstance.netamiteServer.SendToAll(
+                    new DisplayTextPacket("endGameNotify", $"Citizens Victory!\nThe Murderer has been stopped! The town is saved!", Color.blue, new Vector3(0, 0, 2), true, true, 5)
+                );
+                Thread.Sleep(5000);
+                gameRunning = false;
+                if (players.Count >= config.requiredPlayerCount)
+                {
+                    Thread intermission = new Thread(intermissionLoop);
+                    intermission.Start();
+                }
+            }
+            else if (killed.ClientId == detective.ClientId)
+            {
+                deadPlayers.Add(killed);
+                killed.SetDamageMultiplicator(0);
+                System.Random rand = new System.Random();
+
+                if (citizens.Count > 0)
+                {
+                    detective = citizens[rand.Next(citizens.Count)];
+                    citizens.Remove(detective);
+                    detective.SetDamageMultiplicator(10);
+
+                    ModManager.serverInstance.netamiteServer.SendTo(
+                        detective.ClientId,
+                        new DisplayTextPacket("newDetectiveNotify", "The previous Detective has been murdered and you are the new Detective.", Color.blue, new Vector3(0, 0, 2), true, true, 2)
+                    );
+                }
+                else
+                {
+                    detective = null;
+                }
+            }
+            else if (killer.ClientId == detective.ClientId)
+            {
+                matchCancelTokenSource.Cancel();
+                deadCancelTokenSource.Cancel();
+
+                ModManager.serverInstance.netamiteServer.SendToAll(
+                    new DisplayTextPacket("endGameNotify", $"Murderer Victory!\nThe Detective has slain an innocent, meaning the Murderer wins! For some reason.", Color.red, new Vector3(0, 0, 2), true, true, 5)
+                );
+                Thread.Sleep(5000);
+                gameRunning = false;
+                if (players.Count >= config.requiredPlayerCount)
+                {
+                    Thread intermission = new Thread(intermissionLoop);
+                    intermission.Start();
+                }
+            }
+            else if (deadPlayers.Where(i => i.ClientId == killed.ClientId).FirstOrDefault() == null)
+            {
+                deadPlayers.Add(killed);
+                citizens.Remove(citizens.Where(i => i.ClientId == killed.ClientId).First());
+            }
+
+            if (citizens.Count == 0 && detective == null)
+            {
+                matchCancelTokenSource.Cancel();
+                deadCancelTokenSource.Cancel();
+
+                ModManager.serverInstance.netamiteServer.SendToAll(
+                    new DisplayTextPacket("endGameNotify", $"Murderer Victory!\nThe Murderer has killed everyone!", Color.red, new Vector3(0, 0, 2), true, true, 5)
+                );
+                Thread.Sleep(5000);
+                gameRunning = false;
+                if (players.Count >= config.requiredPlayerCount)
+                {
+                    Thread intermission = new Thread(intermissionLoop);
+                    intermission.Start();
+                }
             }
         }
 
