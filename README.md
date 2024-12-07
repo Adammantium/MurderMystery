@@ -10,6 +10,10 @@ In Murder Mystery there are three teams: the Murderer, the Citizens, and the Det
 - Invisible dead players
 - 3 different win conditions
 
+## Planned Features
+- Tasks for Citizens
+- Randomized spawn locations
+
 ## Instalation
 This is a plugin for [Adammantium's Multiplayer Mod](https://www.nexusmods.com/bladeandsorcery/mods/6888). To use it, you will need to set up your own [dedicated server](https://github.com/AdammantiumMultiplayer/Server). Once that's set up just drag and drop the `MurderMystery.dll` file into the `plugins` folder!
 
