@@ -43,7 +43,7 @@ namespace MurderMystery
         {
             public int requiredPlayerCount = 3;
             public float matchTime = 300.0f;
-            public float intermissionTime = 10.0f;
+            public float intermissionTime = 30.0f;
         }
 
 
