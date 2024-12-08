@@ -8,7 +8,6 @@ using AMP.Network.Packets.Implementation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Permissions;
 using System.Threading;
 using UnityEngine;
 
@@ -18,7 +17,7 @@ namespace MurderMystery
     {
         public override string NAME => "MurderMystery";
         public override string AUTHOR => "LetsJustPlay";
-        public override string VERSION => "0.5";
+        public override string VERSION => "0.6";
 
         private bool gameRunning = false;
 
@@ -44,6 +43,32 @@ namespace MurderMystery
             public int requiredPlayerCount = 3;
             public float matchTime = 300.0f;
             public float intermissionTime = 30.0f;
+            public Dictionary<string, List<List<float>>> playerSpawns = new Dictionary<string, List<List<float>>> {
+                {"Home", new List<List<float>> {
+                    new List<float> { 37.61f, 2, -46.31f }
+                } },
+                {"Arena", new List<List<float>>
+                {
+                    new List<float> { 7.18f, 0.2f, 0.03f }
+                } },
+                {"Canyon", new List<List<float>>
+                {
+                    new List<float> { 27.62f, -7, 6.54f}
+                } },
+                {"Citadel", new List<List<float>>
+                {
+                    new List<float> { 15.5f, 92.3f, 1 }
+                } },
+                {"Sanctuary", new List<List<float>>
+                {
+                    new List<float> { 0.06f, 2, 19.96f}
+                } },
+                {"Market", new List<List<float>>
+                {
+                    new List<float> { 17.19f, 0.5f, 18.52f }
+                } }
+            };
+            public Dictionary<string, Dictionary<string, float>> taskSpawns;
         }
 
 
@@ -191,6 +216,17 @@ namespace MurderMystery
             deadCancelToken = deadCancelTokenSource.Token;
             matchCancelTokenSource = new CancellationTokenSource();
             matchCancelToken = matchCancelTokenSource.Token;
+
+            if (config.playerSpawns.ContainsKey(ModManager.serverInstance.currentLevel))
+            {
+                List<List<float>> playerSpawns = config.playerSpawns[ModManager.serverInstance.currentLevel];
+                foreach (ClientData client in players)
+                {
+                    List<float> randomSpawn = playerSpawns[rand.Next(playerSpawns.Count())];
+                    Vector3 startPos = new Vector3(randomSpawn[0], randomSpawn[1], randomSpawn[2]);
+                    client.Teleport(startPos);
+                }
+            }
 
             Thread match = new Thread(() => matchLoop(matchCancelToken));
             Thread deadLoop = new Thread(() => deadTick(deadCancelToken));
