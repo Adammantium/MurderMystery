@@ -81,6 +81,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MurderMysteryConfig.cs" />
     <Compile Include="MurderMystery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

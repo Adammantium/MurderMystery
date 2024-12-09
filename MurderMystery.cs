@@ -38,40 +38,6 @@ namespace MurderMystery
         private CancellationToken matchCancelToken;
 
 
-        internal class MurderMysteryConfig : PluginConfig
-        {
-            public int requiredPlayerCount = 3;
-            public float matchTime = 300.0f;
-            public float intermissionTime = 30.0f;
-            public Dictionary<string, List<List<float>>> playerSpawns = new Dictionary<string, List<List<float>>> {
-                {"Home", new List<List<float>> {
-                    new List<float> { 37.61f, 2, -46.31f }
-                } },
-                {"Arena", new List<List<float>>
-                {
-                    new List<float> { 7.18f, 0.2f, 0.03f }
-                } },
-                {"Canyon", new List<List<float>>
-                {
-                    new List<float> { 27.62f, -7, 6.54f}
-                } },
-                {"Citadel", new List<List<float>>
-                {
-                    new List<float> { 15.5f, 92.3f, 1 }
-                } },
-                {"Sanctuary", new List<List<float>>
-                {
-                    new List<float> { 0.06f, 2, 19.96f}
-                } },
-                {"Market", new List<List<float>>
-                {
-                    new List<float> { 17.19f, 0.5f, 18.52f }
-                } }
-            };
-            public Dictionary<string, Dictionary<string, float>> taskSpawns;
-        }
-
-
         private void deadTick(CancellationToken cancellationToken)
         {
             while (gameRunning && !cancellationToken.IsCancellationRequested)
