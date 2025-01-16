@@ -25,3 +25,4 @@ The config is automatically generated after the initial run of the plugin. It is
 | `matchTime`           | How long the match will last. In seconds.                                                       | `float`                                | `300.0`                   |
 | `intermissionTime`    | How long between matches. In seconds.                                                           | `float`                                | `30.0`                    |
 | `playerSpawns`        | A dictionary, containing an array of possible spawn locations for the players in a given level. | `Dictionary<string, List<List<float>>` | `Default values for home` |
+| `taskSpawns`          | Currently unused. Will be used to define where tasks can spawn in the level                     | `Dictionary<string, List<List<float>>` | `Default values for home` |
