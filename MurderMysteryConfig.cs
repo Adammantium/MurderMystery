@@ -23,28 +23,25 @@ namespace MurderMystery
                     new List<float> { 50.5f, 6, -17 },
                     new List<float> { 87.3f, 1.8f, -33.6f },
                     new List<float> { 165, 0, -33.6f },
-                } },
-                {"Arena", new List<List<float>>
-                {
-                    new List<float> { 7.18f, 0.2f, 0.03f }
-                } },
-                {"Canyon", new List<List<float>>
-                {
-                    new List<float> { 27.62f, -7, 6.54f}
-                } },
-                {"Citadel", new List<List<float>>
-                {
-                    new List<float> { 15.5f, 92.3f, 1 }
-                } },
-                {"Sanctuary", new List<List<float>>
-                {
-                    new List<float> { 0.06f, 2, 19.96f}
-                } },
-                {"Market", new List<List<float>>
-                {
-                    new List<float> { 17.19f, 0.5f, 18.52f }
                 } }
             };
-        public Dictionary<string, Dictionary<string, float>> taskSpawns;
+        public Dictionary<string, List<List<float>>> taskSpawns = new Dictionary<string, List<List<float>>>
+        {
+            {"Home", new List<List<float>>
+                {
+                    new List<float> { 47, 2.7f, -42 },
+                    new List<float> { 40.5f, 4.5f, -39.5f },
+                    new List<float> { 21.3f, 5.5f, -23.5f },
+                    new List<float> { 41.5f, 6.5f, 5.8f },
+                    new List<float> { 65.8f, 3.7f, -3.8f },
+                    new List<float> { 93.4f, 15, 45.75f },
+                    new List<float> { 120.7f, 11.9f, 88.7f },
+                    new List<float> { 132.3f, -2.5f, 29.1f },
+                    new List<float> { 241.4f, -5, 35.4f },
+                    new List<float> { 78, -5, -87.2f },
+                    new List<float> { 133, 31, 7.8f },
+                    new List<float> { 146.7f, -2.3f, -22 }
+                } }
+        };
     }
 }

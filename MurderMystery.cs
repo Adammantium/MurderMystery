@@ -4,6 +4,7 @@ using AMP.DedicatedServer.Plugins;
 using AMP.Events;
 using AMP.Logging;
 using AMP.Network.Data;
+using AMP.Network.Data.Sync;
 using AMP.Network.Packets.Implementation;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,8 @@ namespace MurderMystery
         private List<ClientData> players = new List<ClientData>();
         private List<ClientData> citizens = new List<ClientData>();
         private List<ClientData> deadPlayers = new List<ClientData>();
+
+        private Dictionary<int, int> playerScores = new Dictionary<int, int>();
 
         private CancellationTokenSource deadCancelTokenSource;
         private CancellationTokenSource matchCancelTokenSource;
@@ -75,6 +78,13 @@ namespace MurderMystery
                 ModManager.serverInstance.netamiteServer.SendToAll(
                     new DisplayTextPacket("matchTimer", $"{timer}", Color.white, new Vector3(-1, 0, 2), true, true, 1)
                 );
+                //foreach (var client in playerScores)
+                //{
+                //    ModManager.serverInstance.netamiteServer.SendTo(
+                //        client.Key,
+                //        new DisplayTextPacket("citizenScore", $"{client.Value}", Color.white, new Vector3(-1, 0, 4), true, true, 1)
+                //    );
+                //}
                 Thread.Sleep(1000);
                 timer--;
             }
@@ -150,6 +160,7 @@ namespace MurderMystery
             Log.Info($"{detective.ClientName} is the detective");
 
             citizens.Clear();
+            playerScores.Clear();
             foreach (ClientData client in players)
             {
                 if (client.ClientId != murderer.ClientId && client.ClientId != detective.ClientId)
@@ -163,6 +174,7 @@ namespace MurderMystery
 
             foreach (ClientData client in citizens)
             {
+                playerScores.Add(client.ClientId, 0);
                 ModManager.serverInstance.netamiteServer.SendTo(
                     client.ClientId,
                     new DisplayTextPacket("citizenNotify", "You are a Citizen.\nStay alive and help the detective.", Color.white, new Vector3(0,0,2), true, true, 2)
