@@ -9,7 +9,7 @@ In Murder Mystery there are three teams: the Murderer, the Citizens, and the Det
 - Automatic matchmaking
 - Invisible dead players
 - 3 different win conditions
-- Randomized spawn locations
+- Randomized spawn locations (Only the home level has random spawns)
 
 ## Planned Features
 - Tasks for Citizens
@@ -19,8 +19,9 @@ This is a plugin for [Adammantium's Multiplayer Mod](https://www.nexusmods.com/b
 
 ## Config
 The config is automatically generated after the initial run of the plugin. It is located in the `plugins` folder and is called `MurderMystery.json`.
-| Tag                   | Description                                              | Value Type   | Default Value   |
-|-----------------------|----------------------------------------------------------|--------------|-----------------|
-| `requiredPlayerCount` | The minimun number of players required to start a match. | `int`        | `2`             |
-| `matchTime`           | How long the match will last. In seconds.                | `float`      | `300.0`         |
-| `intermissionTime`    | How long between matches. In seconds.                    | `float`      | `30.0`          |
+| Tag                   | Description                                                                                     | Value Type                             | Default Value             |
+|-----------------------|-------------------------------------------------------------------------------------------------|----------------------------------------|---------------------------|
+| `requiredPlayerCount` | The minimun number of players required to start a match.                                        | `int`                                  | `2`                       |
+| `matchTime`           | How long the match will last. In seconds.                                                       | `float`                                | `300.0`                   |
+| `intermissionTime`    | How long between matches. In seconds.                                                           | `float`                                | `30.0`                    |
+| 'playerSpawns'        | A dictionary, containing an array of possible spawn locations for the players in a given level. | 'Dictionary<string, List<List<float>>' | 'Default values for home' |
