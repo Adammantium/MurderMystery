@@ -24,4 +24,4 @@ The config is automatically generated after the initial run of the plugin. It is
 | `requiredPlayerCount` | The minimun number of players required to start a match.                                        | `int`                                  | `2`                       |
 | `matchTime`           | How long the match will last. In seconds.                                                       | `float`                                | `300.0`                   |
 | `intermissionTime`    | How long between matches. In seconds.                                                           | `float`                                | `30.0`                    |
-| 'playerSpawns'        | A dictionary, containing an array of possible spawn locations for the players in a given level. | 'Dictionary<string, List<List<float>>' | 'Default values for home' |
+| `playerSpawns`        | A dictionary, containing an array of possible spawn locations for the players in a given level. | `Dictionary<string, List<List<float>>` | `Default values for home` |
