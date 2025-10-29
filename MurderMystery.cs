@@ -18,11 +18,20 @@ namespace MurderMystery
     {
         public override string NAME => "MurderMystery";
         public override string AUTHOR => "LetsJustPlay";
-        public override string VERSION => "0.6";
+        public override string VERSION => "0.7";
 
         private bool gameRunning = false;
 
-        private int matchResults = 0; // 0 = Stalemate, 1 = Citizen Victory, 2 = Murderer Victory(everyone dead), 3 = Murderer Victory(detective failure)
+        private enum MatchResult {
+            STALEMATE,
+            CITIZEN_VICTORY,
+            MURDERER_VICTORY_KILL,
+            DETECTIVE_WRONG_KILL,
+            MURDERER_LEFT,
+            DETECTIVE_LEFT
+        }
+
+        private MatchResult matchResults = MatchResult.STALEMATE;
 
         private MurderMysteryConfig config;
 
@@ -76,7 +85,7 @@ namespace MurderMystery
             while (timer > 0 && !cancellationToken.IsCancellationRequested)
             {
                 ModManager.serverInstance.netamiteServer.SendToAll(
-                    new DisplayTextPacket("matchTimer", $"{timer}", Color.white, new Vector3(-1, 0, 2), true, true, 1)
+                    new DisplayTextPacket("matchTimer", $"{timer}", Color.white, new Vector3(-1, 0, 2), true, true, 2)
                 );
                 //foreach (var client in playerScores)
                 //{
@@ -90,38 +99,46 @@ namespace MurderMystery
             }
 
             deadCancelTokenSource.Cancel();
-            if (timer == 0)
-            {
+            if (timer == 0) {
                 matchResults = 0;
             }
-            switch (matchResults)
-            {
-                case 0:
+            switch (matchResults) {
+                case MatchResult.STALEMATE:
                     ModManager.serverInstance.netamiteServer.SendToAll(
                         new DisplayTextPacket("endGameNotify", "Stalemate\nThe Murderer failed to kill everyone and the\nDetective failed to find the Murderer.", Color.white, new Vector3(0, 0, 2), true, true, 5)
                     );
                     break;
-                case 1:
+                case MatchResult.CITIZEN_VICTORY:
                     ModManager.serverInstance.netamiteServer.SendToAll(
                         new DisplayTextPacket("endGameNotify", $"Citizens Victory!\nThe Murderer has been stopped! The town is saved!", Color.blue, new Vector3(0, 0, 2), true, true, 5)
                     );
                     break;
-                case 2:
+                case MatchResult.MURDERER_VICTORY_KILL:
                     ModManager.serverInstance.netamiteServer.SendToAll(
                         new DisplayTextPacket("endGameNotify", $"Murderer Victory!\nThe Murderer has killed everyone!", Color.red, new Vector3(0, 0, 2), true, true, 5)
                     );
                     break;
-                case 3:
+                case MatchResult.DETECTIVE_WRONG_KILL:
                     ModManager.serverInstance.netamiteServer.SendToAll(
                         new DisplayTextPacket("endGameNotify", $"Murderer Victory!\nThe Detective has slain a citizen,\nmeaning the Murderer wins! For some reason.", Color.red, new Vector3(0, 0, 2), true, true, 5)
                     );
                     break;
+                case MatchResult.MURDERER_LEFT:
+                    ModManager.serverInstance.netamiteServer.SendToAll(
+                        new DisplayTextPacket("endGameNotify", $"Stalemate\nThe Murderer left the game.", Color.white, new Vector3(0, 0, 2), true, true, 5)
+                    );
+                    break;
+                case MatchResult.DETECTIVE_LEFT:
+                    ModManager.serverInstance.netamiteServer.SendToAll(
+                        new DisplayTextPacket("endGameNotify", $"Stalemate\nThe Detective left the game.\nThe Murderer left the game.", Color.white, new Vector3(0, 0, 2), true, true, 5)
+                    );
+                    break;
+                default: break;
             }
 
             Thread.Sleep(5000);
             gameRunning = false;
-            if (players.Count >= config.requiredPlayerCount)
-            {
+            if (players.Count >= config.requiredPlayerCount) {
                 Thread intermission = new Thread(intermissionLoop);
                 intermission.Start();
             }
@@ -133,15 +150,11 @@ namespace MurderMystery
             while (timer > 0)
             {
                 ModManager.serverInstance.netamiteServer.SendToAll(
-                    new DisplayTextPacket("intermissionTimer", $"The match will start in {timer}.", Color.white, new Vector3(-1, 0, 2), true, true, 1)
+                    new DisplayTextPacket("intermissionTimer", $"The match will start in {timer}.", Color.white, new Vector3(-1, 0, 2), true, true, timer)
                 );
                 Thread.Sleep(1000);
                 timer--;
             }
-
-            ModManager.serverInstance.netamiteServer.SendToAll(
-                new DisplayTextPacket("matchStart", "The match is starting.", Color.white, new Vector3(-1, 0, 2), true, true, 1)
-            );
 
             gameRunning = true;
             System.Random rand = new System.Random();
@@ -177,16 +190,29 @@ namespace MurderMystery
                 playerScores.Add(client.ClientId, 0);
                 ModManager.serverInstance.netamiteServer.SendTo(
                     client.ClientId,
-                    new DisplayTextPacket("citizenNotify", "You are a Citizen.\nStay alive and help the detective.", Color.white, new Vector3(0,0,2), true, true, 2)
+                    new DisplayTextPacket("citizenNotify", "You are a Citizen.\nStay alive and help the detective.", Color.white, new Vector3(0,0,2), true, true, 10)
+                );
+                ModManager.serverInstance.netamiteServer.SendTo(
+                    client.ClientId,
+                    new DisplayTextPacket("role", $"Citizen", Color.green, new Vector3(-0.8f, 0, 2), true, true, config.matchTime) // Display it for the whole match time
                 );
             }
             ModManager.serverInstance.netamiteServer.SendTo(
                 murderer.ClientId,
-                new DisplayTextPacket("murdererNotify", "You are the Murderer.\nKill all the other players and avoid being caught by the detective.", Color.red, new Vector3(0,0,2), true, true, 2)
+                new DisplayTextPacket("murdererNotify", "You are the Murderer.\nKill all the other players and avoid being caught by the detective.", Color.red, new Vector3(0,0,2), true, true, 10)
+            );
+            ModManager.serverInstance.netamiteServer.SendTo(
+                murderer.ClientId,
+                new DisplayTextPacket("role", $"Murderer", Color.red, new Vector3(-0.8f, 0, 2), true, true, config.matchTime) // Display it for the whole match time
+            );
+            
+            ModManager.serverInstance.netamiteServer.SendTo(
+                detective.ClientId,
+                new DisplayTextPacket("murdererNotify", "You are the Detective.\nProtect the Citizens and find the Murderer.", Color.blue, new Vector3(0, 0, 2), true, true, 10)
             );
             ModManager.serverInstance.netamiteServer.SendTo(
                 detective.ClientId,
-                new DisplayTextPacket("murdererNotify", "You are the Detective.\nProtect the Citizens and find the Murderer.", Color.blue, new Vector3(0, 0, 2), true, true, 2)
+                new DisplayTextPacket("role", $"Detective", Color.blue, new Vector3(-0.8f, 0, 2), true, true, config.matchTime) // Display it for the whole match time
             );
 
             Thread.Sleep(1000);
@@ -195,11 +221,9 @@ namespace MurderMystery
             matchCancelTokenSource = new CancellationTokenSource();
             matchCancelToken = matchCancelTokenSource.Token;
 
-            if (config.playerSpawns.ContainsKey(ModManager.serverInstance.currentLevel))
-            {
+            if (config.playerSpawns.ContainsKey(ModManager.serverInstance.currentLevel)) {
                 List<List<float>> playerSpawns = config.playerSpawns[ModManager.serverInstance.currentLevel];
-                foreach (ClientData client in players)
-                {
+                foreach (ClientData client in players) {
                     List<float> randomSpawn = playerSpawns[rand.Next(playerSpawns.Count())];
                     Vector3 startPos = new Vector3(randomSpawn[0], randomSpawn[1], randomSpawn[2]);
                     client.Teleport(startPos);
@@ -223,15 +247,15 @@ namespace MurderMystery
 
         public override void OnStop()
         {
-            matchCancelTokenSource.Cancel();
-            deadCancelTokenSource.Cancel();
+            if(matchCancelTokenSource != null) matchCancelTokenSource.Cancel();
+            if(deadCancelTokenSource != null) deadCancelTokenSource.Cancel();
         }
 
         public void OnPlayerKilled(ClientData killed, ClientData killer)
         {
             if (killed.ClientId == murderer.ClientId)
             {
-                matchResults = 1;
+                matchResults = MatchResult.CITIZEN_VICTORY;
                 matchCancelTokenSource.Cancel();
             }
             else if (killed.ClientId == detective.ClientId)
@@ -256,9 +280,9 @@ namespace MurderMystery
                     detective = null;
                 }
             }
-            else if (killer.ClientId == detective.ClientId)
+            else if (killer != null && killer.ClientId == detective.ClientId)
             {
-                matchResults = 3;
+                matchResults = MatchResult.DETECTIVE_WRONG_KILL;
                 matchCancelTokenSource.Cancel();
             }
             else if (deadPlayers.Where(i => i.ClientId == killed.ClientId).FirstOrDefault() == null)
@@ -269,7 +293,7 @@ namespace MurderMystery
 
             if (citizens.Count == 0 && detective == null)
             {
-                matchResults = 2;
+                matchResults = MatchResult.MURDERER_VICTORY_KILL;
                 matchCancelTokenSource.Cancel();
             }
         }
@@ -304,10 +328,11 @@ namespace MurderMystery
                     intermission.Start();
                 }
             }
+            
+            client.SendPacket(new BookAvailabilityPacket(false, false));
         }
 
-        public void OnPlayerQuit(ClientData client)
-        {
+        public void OnPlayerQuit(ClientData client) {
             players.Remove(players.Where(i => i.ClientId == client.ClientId).First());
 
             try
@@ -323,6 +348,10 @@ namespace MurderMystery
                 catch { }
             }
 
+            if (client == murderer || client == detective) {
+                matchResults = client == murderer ? MatchResult.MURDERER_LEFT : MatchResult.DETECTIVE_LEFT;
+                matchCancelTokenSource.Cancel();
+            }
         }
     }
 }
