@@ -31,27 +31,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AMP">
-      <HintPath>..\..\DLL and stuff\AMP.dll</HintPath>
+    <Reference Include="AMP, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\AMP.dll</HintPath>
     </Reference>
-    <Reference Include="AMP_Server">
-      <HintPath>..\..\DLL and stuff\AMP_Server.exe</HintPath>
+    <Reference Include="AMP_Server, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\AMP_Server.exe</HintPath>
     </Reference>
-    <Reference Include="Netamite">
-      <HintPath>..\..\DLL and stuff\Netamite.dll</HintPath>
+    <Reference Include="Netamite, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\Netamite.dll</HintPath>
     </Reference>
-    <Reference Include="Netamite.Steam">
-      <HintPath>..\..\DLL and stuff\Netamite.Steam.dll</HintPath>
+    <Reference Include="Netamite.Steam, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\Netamite.Steam.dll</HintPath>
     </Reference>
-    <Reference Include="Netamite.Unity">
-      <HintPath>..\..\DLL and stuff\Netamite.Unity.dll</HintPath>
+    <Reference Include="Netamite.Unity, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\Netamite.Unity.dll</HintPath>
     </Reference>
-    <Reference Include="Netamite.Voice">
-      <HintPath>..\..\DLL and stuff\Netamite.Voice.dll</HintPath>
+    <Reference Include="Netamite.Unity.Voice">
+      <HintPath>..\Packages\Netamite.Unity.Voice.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.1.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\DLL and stuff\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\Packages\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,23 +66,29 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="ThunderRoad">
-      <HintPath>..\..\DLL and stuff\ThunderRoad.dll</HintPath>
+    <Reference Include="ThunderRoad, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\ThunderRoad.dll</HintPath>
     </Reference>
-    <Reference Include="ThunderRoad.Manikin">
-      <HintPath>..\..\DLL and stuff\ThunderRoad.Manikin.dll</HintPath>
+    <Reference Include="ThunderRoad.Manikin, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\ThunderRoad.Manikin.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.ResourceManager">
-      <HintPath>..\..\DLL and stuff\Unity.ResourceManager.dll</HintPath>
+    <Reference Include="Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\Unity.ResourceManager.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\DLL and stuff\UnityEngine.CoreModule.dll</HintPath>
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>..\..\DLL and stuff\UnityEngine.PhysicsModule.dll</HintPath>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.SharedInternalsModule">
-      <HintPath>..\..\DLL and stuff\UnityEngine.SharedInternalsModule.dll</HintPath>
+    <Reference Include="UnityEngine.SharedInternalsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Packages\UnityEngine.SharedInternalsModule.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

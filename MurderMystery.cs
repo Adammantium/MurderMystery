@@ -18,9 +18,9 @@ namespace MurderMystery
     {
         public override string NAME => "MurderMystery";
         public override string AUTHOR => "LetsJustPlay";
-        public override string VERSION => "0.7";
+        public override string VERSION => "0.8";
 
-        private bool gameRunning = false;
+        private bool matchRunning = false;
 
         private enum MatchResult {
             STALEMATE,
@@ -52,7 +52,7 @@ namespace MurderMystery
 
         private void deadTick(CancellationToken cancellationToken)
         {
-            while (gameRunning && !cancellationToken.IsCancellationRequested)
+            while (matchRunning && !cancellationToken.IsCancellationRequested)
             {
                 List<ClientData> localClients = deadPlayers;
                 int[] deadPlayerIds = localClients.Select(i => i.ClientId).ToArray();
@@ -100,7 +100,7 @@ namespace MurderMystery
 
             deadCancelTokenSource.Cancel();
             if (timer == 0) {
-                matchResults = 0;
+                matchResults = MatchResult.STALEMATE;
             }
             switch (matchResults) {
                 case MatchResult.STALEMATE:
@@ -136,8 +136,9 @@ namespace MurderMystery
                 default: break;
             }
 
+            Log.Info("Match end");
             Thread.Sleep(5000);
-            gameRunning = false;
+            matchRunning = false;
             if (players.Count >= config.requiredPlayerCount) {
                 Thread intermission = new Thread(intermissionLoop);
                 intermission.Start();
@@ -146,6 +147,7 @@ namespace MurderMystery
 
         private void intermissionLoop()
         {
+            Log.Info("Intermission start");
             float timer = config.intermissionTime;
             while (timer > 0)
             {
@@ -156,7 +158,8 @@ namespace MurderMystery
                 timer--;
             }
 
-            gameRunning = true;
+            Log.Info("Intermission end");
+            Log.Info("Match start");
             System.Random rand = new System.Random();
 
             murderer = players[rand.Next(players.Count())];
@@ -208,7 +211,7 @@ namespace MurderMystery
             
             ModManager.serverInstance.netamiteServer.SendTo(
                 detective.ClientId,
-                new DisplayTextPacket("murdererNotify", "You are the Detective.\nProtect the Citizens and find the Murderer.", Color.blue, new Vector3(0, 0, 2), true, true, 10)
+                new DisplayTextPacket("detectiveNotify", "You are the Detective.\nProtect the Citizens and find the Murderer.", Color.blue, new Vector3(0, 0, 2), true, true, 10)
             );
             ModManager.serverInstance.netamiteServer.SendTo(
                 detective.ClientId,
@@ -301,7 +304,7 @@ namespace MurderMystery
         public void OnPlayerJoin(ClientData client)
         {
             players.Add(client);
-            if (gameRunning)
+            if (matchRunning)
             {
                 deadPlayers.Add(client);
                 client.SetDamageMultiplicator(0);
@@ -310,16 +313,17 @@ namespace MurderMystery
                     new DisplayTextPacket("deadNotify", "You have joined during a match and have been automatically murdered.", Color.white, new Vector3(0,0,2), true, true, 5)
                 );
             }
-            else
+            else if(!matchRunning)
             {
                 ModManager.serverInstance.netamiteServer.SendToAll(
-                    new DisplayTextPacket("playerJoinNotify", $"{client.ClientName} has joined the server.\n{players.Count}/{config.requiredPlayerCount}", Color.white, new Vector3(0,0,2), true, true, 1)
+                    new DisplayTextPacket("playerJoinNotify", $"{client.ClientName} has joined the server.\n{players.Count}/{config.requiredPlayerCount}", Color.white, new Vector3(0, 0, 2), true, true, 1)
                 );
 
                 Thread.Sleep(1000);
 
                 if (players.Count >= config.requiredPlayerCount)
                 {
+                    matchRunning = true;
                     ModManager.serverInstance.netamiteServer.SendToAll(
                         new DisplayTextPacket("matchStart", $"Enough players have joined. Starting match.", Color.white, new Vector3(0, 0, 2), true, true, 1)
                     );
